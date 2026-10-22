@@ -1,7 +1,7 @@
 {
   "name": "transkriber",
   "displayName": "Transkriber — norsk tale til tekst",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Transkriberer norsk lyd og video lokalt med NB-Whisper. Gir møtereferat, ren transkripsjon eller undertekster (.srt). Ingen API-nøkkel, ingenting forlater maskinen.",
   "author": {
     "name": "Nico Skogen",
