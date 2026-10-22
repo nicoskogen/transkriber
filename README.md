@@ -93,7 +93,8 @@ uansett.
 /transkriber ~/Downloads/mote.m4a
 ```
 
-Claude spør hva du vil ha ut. Sier du det med én gang, slipper du spørsmålet:
+Claude spør hva du vil ha ut, og om opptaket er bare norsk eller norsk og
+engelsk. Sier du det med én gang, slipper du spørsmålene:
 
 > lag undertekster av intervjuet som ligger på skrivebordet
 
@@ -115,15 +116,13 @@ stemmer den ikke med lyden.
 
 ### Norsk og engelsk om hverandre
 
-Bytter folk mellom norsk og engelsk i opptaket, si det, for eksempel «møtet var
-på norsk og engelsk». Da blir hver del skrevet på sitt eget språk. Uten det
-blir engelsk tale oversatt til norsk, eller den forsvinner.
+Svarer du «norsk og engelsk» på språkspørsmålet, blir hver del skrevet på sitt
+eget språk. Med «bare norsk» blir engelsk tale oversatt til norsk, eller den
+forsvinner.
 
-Det krever en ekstra modell på 148 MB, som du henter én gang:
-
-```
-/transkriber-setup --blandet
-```
+Det krever en ekstra modell på 148 MB. Første gang du velger norsk og engelsk,
+spør Claude om den skal lastes ned. Du kan også hente den på forhånd med
+`/transkriber-setup --blandet`.
 
 Språket avgjøres per bit av talen, ikke per ord. Et engelsk ord midt i en norsk
 setning blir derfor gjengitt som før. Det koster også et ekstra pass over de

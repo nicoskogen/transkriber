@@ -6,9 +6,12 @@ allowed-tools: Bash, Read, Write, Skill, AskUserQuestion
 
 Transkriber **$1**.
 
-## Steg 1 — finn ut hva brukeren vil ha ut
+## Steg 1 — spør før du starter
 
-Tre resultater er mulige:
+Still spørsmålene under i **ett** `AskUserQuestion`-kall før transkriberingen
+starter. Brukeren skal ikke trenge å huske flagg eller formuleringer.
+
+**Modus:** hva skal ut av opptaket?
 
 | Modus | Gir | Passer til |
 |---|---|---|
@@ -16,29 +19,21 @@ Tre resultater er mulige:
 | `tekst` | `<navn>.txt` og `.vtt` | Ren transkripsjon, ingen tolkning |
 | `srt` | `<navn>.srt` | Undertekster til videoredigering |
 
-**Sier forespørselen allerede hvilken det er, ikke spør.** «Lag undertekster av
-dette» er `srt`, «bare transkriber» er `tekst`, «lag referat» er `referat`.
-Bruk `AskUserQuestion` bare når det faktisk er uklart, for eksempel når
-kommandoen kjøres med en filsti og ingenting annet.
+**Språk:** hva snakkes i opptaket?
 
-Avklar også språket:
-
-| Språk | `--sprak` | Når |
+| Valg | `--sprak` | Betyr |
 |---|---|---|
-| Norsk | `no` | Standard |
-| Norsk og engelsk | `blandet` | Folk bytter mellom norsk og engelsk underveis |
+| Bare norsk (første og anbefalte valg) | `no` | Engelsk tale blir oversatt til norsk eller borte |
+| Norsk og engelsk | `blandet` | Hver del skrives på sitt eget språk, men tar lenger tid |
 
-Med `no` blir engelsk tale oversatt til norsk eller borte. Med `blandet` blir
-hver del skrevet på sitt eget språk.
+Hopp over et spørsmål bare når forespørselen svarer på det med rene ord:
+«lag undertekster» er `srt`, «bare transkriber» er `tekst`, «lag referat» er
+`referat`; «møtet var på engelsk og norsk» er `blandet`, «det er bare norsk» er
+`no`. Ikke gjett språket ut fra filnavn eller tema. Er begge svart, start
+direkte.
 
-**Sier forespørselen noe om språk, ikke spør.** «Møtet var på engelsk og norsk»
-eller «mixed» er `blandet`. Sier den ingenting, og du likevel må spørre om
-modus, still begge spørsmålene i **samme** `AskUserQuestion`-kall, med norsk
-som første og anbefalte valg. Er modusen klar og språket ikke nevnt, bruk `no`
-uten å spørre.
-
-Modus og språk må velges **før** transkriberingen starter. Undertekster krever
-en annen segmentering enn løpende tekst, og språket avgjør hvordan opptaket
+Begge må være avgjort **før** transkriberingen starter. Undertekster krever en
+annen segmentering enn løpende tekst, og språket avgjør hvordan opptaket
 transkriberes, så et feilvalg betyr at hele jobben må kjøres om igjen.
 
 ## Steg 2 — transkriber
@@ -65,8 +60,11 @@ som den er og stopp. Meldingene sier allerede hva som må gjøres, som regel at
 `/transkriber-setup` ikke er kjørt. Ikke forsøk å transkribere på andre måter og
 ikke installer noe på egen hånd.
 
-Sier skriptet at språkmodellen for blandet norsk og engelsk mangler, be
-brukeren kjøre `/transkriber-setup --blandet` og stopp.
+Sier skriptet at språkmodellen for blandet norsk og engelsk mangler, spør med
+`AskUserQuestion` om den skal lastes ned nå (omtrent 148 MB, én gang). Ja: kjør
+`${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --blandet` med `run_in_background: true`,
+og start transkriberingen på nytt når den er ferdig. Nei: stopp og si at
+`blandet` krever modellen.
 
 ## Steg 3 — etterarbeid, avhengig av modus
 
