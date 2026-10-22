@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Tuple
 
 NORSK = {"no", "nn", "sv", "da"}
 MIN_HULL_MS = 2000
-MIN_LID_MS = 1500
+MIN_LID_MS = 3000
 PAD_MS = 100
 
 SPESIALTOKEN = re.compile(r"<\|[a-zA-Z0-9_.-]+\|>|\[_[A-Z0-9_]+\]")
@@ -148,10 +148,10 @@ def filargumenter(navn: List[str]) -> List[str]:
     return [arg for n in navn for arg in ("-f", n)]
 
 
-def gjenkjenn_sprak(whisper: str, basismodell: str, mappe: Path, navn: List[str]) -> Dict[str, Tuple[str, float]]:
+def gjenkjenn_sprak(whisper: str, sprakmodell: str, mappe: Path, navn: List[str]) -> Dict[str, Tuple[str, float]]:
     if not navn:
         return {}
-    logg = kjor_whisper([whisper, "-m", basismodell, "-l", "auto", "-dl", *filargumenter(navn)], mappe)
+    logg = kjor_whisper([whisper, "-m", sprakmodell, "-l", "auto", "-dl", *filargumenter(navn)], mappe)
     resultat: Dict[str, Tuple[str, float]] = {}
     gjeldende = None
     for linje in logg.splitlines():
@@ -232,7 +232,7 @@ def main() -> None:
     p.add_argument("--ut", required=True, help="utfil uten filendelse")
     p.add_argument("--whisper", required=True)
     p.add_argument("--modell", required=True, help="NB-Whisper-modellen")
-    p.add_argument("--basismodell", required=True, help="Whisper base, for språkgjenkjenning")
+    p.add_argument("--sprakmodell", required=True, help="Whisper small, for språkgjenkjenning")
     a = p.parse_args()
 
     lyd = Lyd(a.lyd)
@@ -246,7 +246,7 @@ def main() -> None:
 
         lid = [i for i, s in enumerate(segmenter) if s.end_ms - s.start_ms >= MIN_LID_MS]
         info(f"gjenkjenner språk i {len(lid)} av {len(segmenter)} segmenter…")
-        etiketter = gjenkjenn_sprak(a.whisper, a.basismodell, mappe, [navn[i] for i in lid])
+        etiketter = gjenkjenn_sprak(a.whisper, a.sprakmodell, mappe, [navn[i] for i in lid])
         segmenter = sett_sprak(segmenter, {i: etiketter[navn[i]] for i in lid if navn[i] in etiketter})
 
         engelsk = {navn[i]: s for i, s in enumerate(segmenter) if s.lang == "en"}

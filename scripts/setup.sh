@@ -5,7 +5,7 @@
 #
 #   ./setup.sh          laster ned kvantisert modell (1031 MB) — anbefalt
 #   ./setup.sh --full   laster ned full presisjon (2951 MB)
-#   ./setup.sh --blandet  i tillegg Whisper base (148 MB) for norsk og engelsk om hverandre
+#   ./setup.sh --blandet  i tillegg Whisper small (190 MB) for norsk og engelsk om hverandre
 #
 # Valgene kan kombineres og stå i hvilken som helst rekkefølge.
 
@@ -21,10 +21,10 @@ MODEL_NAME="ggml-model-q5_0.bin"
 MODEL_SHA="feb5951ae694a62cfeb81fb501f6cfa8cc50d96bcddb1e4e8215f7006bac23a2"
 MODEL_MB=1031
 
-BASE_NAME="ggml-base.bin"
-BASE_SHA="60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
-BASE_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$BASE_NAME"
-BASE_MB=148
+SPRAK_NAME="ggml-small-q5_1.bin"
+SPRAK_SHA="ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb"
+SPRAK_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$SPRAK_NAME"
+SPRAK_MB=190
 
 say_step() { printf '\n▸ %s\n' "$1"; }
 die()      { printf '\n✗ transkriber: %s\n' "$1" >&2; exit 1; }
@@ -97,8 +97,8 @@ say_step "NB-Whisper-modell ($MODEL_NAME, ${MODEL_MB} MB)"
 hent "$MODEL_DIR/$MODEL_NAME" "$MODEL_SHA" "$BASE_URL/$MODEL_NAME"
 
 if [ "$BLANDET" = 1 ]; then
-    say_step "Whisper base for blandet norsk og engelsk ($BASE_NAME, ${BASE_MB} MB)"
-    hent "$MODEL_DIR/$BASE_NAME" "$BASE_SHA" "$BASE_MODEL_URL"
+    say_step "Whisper small for blandet norsk og engelsk ($SPRAK_NAME, ${SPRAK_MB} MB)"
+    hent "$MODEL_DIR/$SPRAK_NAME" "$SPRAK_SHA" "$SPRAK_URL"
 fi
 
 # --------------------------------------------------------------- røyktest

@@ -61,7 +61,7 @@ som den er og stopp. Meldingene sier allerede hva som må gjøres, som regel at
 ikke installer noe på egen hånd.
 
 Sier skriptet at språkmodellen for blandet norsk og engelsk mangler, spør med
-`AskUserQuestion` om den skal lastes ned nå (omtrent 148 MB, én gang). Ja: kjør
+`AskUserQuestion` om den skal lastes ned nå (omtrent 190 MB, én gang). Ja: kjør
 `${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --blandet` med `run_in_background: true`,
 og start transkriberingen på nytt når den er ferdig. Nei: stopp og si at
 `blandet` krever modellen.
