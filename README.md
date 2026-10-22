@@ -79,8 +79,9 @@ Den andre katalogen er der for
 som vasker språket i referatet. Den installeres automatisk som avhengighet, men
 Claude Code henter ikke plugins fra en katalog du ikke har lagt til selv.
 
-Du trenger ikke klone noe, og verken Python eller HuggingFace-token er
-involvert.
+Du trenger ikke klone noe, og ingen HuggingFace-token er involvert. Blandet
+norsk og engelsk bruker `python3` som allerede ligger på maskinen sammen med
+utviklerverktøyene Homebrew krever, uten ekstra pakker.
 
 ## Bruk
 
@@ -111,6 +112,22 @@ Premiere, Resolve, Final Cut og alt annet som leser undertekster.
 
 Underteksten språkvaskes ikke. Den skal gjengi det som faktisk ble sagt, ellers
 stemmer den ikke med lyden.
+
+### Norsk og engelsk om hverandre
+
+Bytter folk mellom norsk og engelsk i opptaket, si det, for eksempel «møtet var
+på norsk og engelsk». Da blir hver del skrevet på sitt eget språk. Uten det
+blir engelsk tale oversatt til norsk, eller den forsvinner.
+
+Det krever en ekstra modell på 148 MB, som du henter én gang:
+
+```
+/transkriber-setup --blandet
+```
+
+Språket avgjøres per bit av talen, ikke per ord. Et engelsk ord midt i en norsk
+setning blir derfor gjengitt som før. Det koster også et ekstra pass over de
+engelske delene, så en time med opptak tar noen minutter lenger.
 
 ## Slik virker det
 
