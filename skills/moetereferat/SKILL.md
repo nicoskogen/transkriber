@@ -59,6 +59,9 @@ ha en tom «Beslutninger»-overskrift.
 **Skriv på norsk, i samme målform som transkripsjonen.** NB-Whisper skriver
 normalisert bokmål eller nynorsk. Følg det den bruker.
 
+**Transkripsjonen kan blande norsk og engelsk.** Skriv referatet på norsk
+likevel.
+
 **Ikke dikt opp.** Dette er hovedregelen, og den overstyrer ønsket om et pent
 dokument. Konkret:
 

@@ -21,15 +21,33 @@ dette» er `srt`, «bare transkriber» er `tekst`, «lag referat» er `referat`.
 Bruk `AskUserQuestion` bare når det faktisk er uklart, for eksempel når
 kommandoen kjøres med en filsti og ingenting annet.
 
-Modusen må velges **før** transkriberingen starter. Undertekster krever en annen
-segmentering enn løpende tekst, så et feilvalg betyr at hele jobben må kjøres om
-igjen.
+Avklar også språket:
+
+| Språk | `--sprak` | Når |
+|---|---|---|
+| Norsk | `no` | Standard |
+| Norsk og engelsk | `blandet` | Folk bytter mellom norsk og engelsk underveis |
+
+Med `no` blir engelsk tale oversatt til norsk eller borte. Med `blandet` blir
+hver del skrevet på sitt eget språk.
+
+**Sier forespørselen noe om språk, ikke spør.** «Møtet var på engelsk og norsk»
+eller «mixed» er `blandet`. Sier den ingenting, og du likevel må spørre om
+modus, still begge spørsmålene i **samme** `AskUserQuestion`-kall, med norsk
+som første og anbefalte valg. Er modusen klar og språket ikke nevnt, bruk `no`
+uten å spørre.
+
+Modus og språk må velges **før** transkriberingen starter. Undertekster krever
+en annen segmentering enn løpende tekst, og språket avgjør hvordan opptaket
+transkriberes, så et feilvalg betyr at hele jobben må kjøres om igjen.
 
 ## Steg 2 — transkriber
 
 ```
-${CLAUDE_PLUGIN_ROOT}/scripts/transcribe.sh "$1" --modus <modus>
+${CLAUDE_PLUGIN_ROOT}/scripts/transcribe.sh "$1" --modus <modus> --sprak <no|blandet>
 ```
+
+`blandet` tar noen minutter ekstra per time opptak.
 
 **Bruk `run_in_background: true`.** En times opptak tar 10–20 minutter, som er
 lenger enn Bash-verktøyets maksimale timeout. En forgrunnskjøring blir drept
@@ -45,6 +63,9 @@ Skriptet skriver stien til resultatet på stdout. Feiler det, vis feilmeldingen
 som den er og stopp. Meldingene sier allerede hva som må gjøres, som regel at
 `/transkriber-setup` ikke er kjørt. Ikke forsøk å transkribere på andre måter og
 ikke installer noe på egen hånd.
+
+Sier skriptet at språkmodellen for blandet norsk og engelsk mangler, be
+brukeren kjøre `/transkriber-setup --blandet` og stopp.
 
 ## Steg 3 — etterarbeid, avhengig av modus
 
@@ -76,3 +97,10 @@ Er `humanizer` ikke installert, hopp over punkt 2 og nevn det.
 Fortell hvor filen ligger. Ved referat: hvor mange beslutninger og todos du
 fant. Gjorde lydkvaliteten deler av opptaket uleselig, si det — ikke skjul det
 bak et pent formatert dokument.
+
+## Steg 5 — arkiver i Obsidian, hvis mulig
+
+Finnes ferdigheten `obsidian-sync` i økten, bruk den til å arkivere
+transkripsjonen (`.txt`) i `tekst` og `referat`, og i tillegg
+`<navn>-referat.md` i `referat`, under samme prosjekt. Ikke `.srt`. Finnes
+ferdigheten ikke, hopp over steget uten å nevne det.
