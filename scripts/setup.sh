@@ -5,6 +5,9 @@
 #
 #   ./setup.sh          laster ned kvantisert modell (1031 MB) — anbefalt
 #   ./setup.sh --full   laster ned full presisjon (2951 MB)
+#   ./setup.sh --blandet  i tillegg Whisper base (148 MB) for norsk og engelsk om hverandre
+#
+# Valgene kan kombineres og stå i hvilken som helst rekkefølge.
 
 set -euo pipefail
 
@@ -18,14 +21,26 @@ MODEL_NAME="ggml-model-q5_0.bin"
 MODEL_SHA="feb5951ae694a62cfeb81fb501f6cfa8cc50d96bcddb1e4e8215f7006bac23a2"
 MODEL_MB=1031
 
-if [ "${1:-}" = "--full" ]; then
-    MODEL_NAME="ggml-model.bin"
-    MODEL_SHA="0f2f66f22e11a7c7da3c582d8e5c89cb2c0011753ba9c7c9731e320a4ba33e76"
-    MODEL_MB=2951
-fi
+BASE_NAME="ggml-base.bin"
+BASE_SHA="60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
+BASE_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$BASE_NAME"
+BASE_MB=148
 
 say_step() { printf '\n▸ %s\n' "$1"; }
 die()      { printf '\n✗ transkriber: %s\n' "$1" >&2; exit 1; }
+
+BLANDET=0
+for arg in "$@"; do
+    case "$arg" in
+        --full)
+            MODEL_NAME="ggml-model.bin"
+            MODEL_SHA="0f2f66f22e11a7c7da3c582d8e5c89cb2c0011753ba9c7c9731e320a4ba33e76"
+            MODEL_MB=2951
+            ;;
+        --blandet) BLANDET=1 ;;
+        *) die "ukjent valg: $arg (gyldige: --full, --blandet)" ;;
+    esac
+done
 
 # ---------------------------------------------------------------- plattform
 [ "$(uname -s)" = "Darwin" ] || die "setup.sh støtter foreløpig kun macOS."
@@ -54,27 +69,36 @@ done
 printf '  ✓ binær: %s\n' "$WHISPER"
 
 # ------------------------------------------------------------------ modell
-say_step "NB-Whisper-modell ($MODEL_NAME, ${MODEL_MB} MB)"
 mkdir -p "$MODEL_DIR"
-TARGET="$MODEL_DIR/$MODEL_NAME"
 
 verify() {
-    [ -f "$TARGET" ] || return 1
+    [ -f "$1" ] || return 1
     printf '  … verifiserer kontrollsum\n'
-    [ "$(shasum -a 256 "$TARGET" | awk '{print $1}')" = "$MODEL_SHA" ]
+    [ "$(shasum -a 256 "$1" | awk '{print $1}')" = "$2" ]
 }
 
-if verify; then
-    printf '  ✓ modellen finnes allerede og er intakt\n'
-else
-    if [ -f "$TARGET" ]; then
+# hent <fil> <sha256> <url>
+hent() {
+    if verify "$1" "$2"; then
+        printf '  ✓ modellen finnes allerede og er intakt\n'
+        return
+    fi
+    if [ -f "$1" ]; then
         printf '  ⚠ ufullstendig nedlasting oppdaget — fortsetter\n'
     fi
     printf '  … laster ned fra Hugging Face (kan gjenopptas med Ctrl-C + ny kjøring)\n'
-    curl -L -C - --fail --progress-bar -o "$TARGET" "$BASE_URL/$MODEL_NAME" \
+    curl -L -C - --fail --progress-bar -o "$1" "$3" \
         || die "nedlasting feilet. Kjør setup.sh på nytt for å gjenoppta."
-    verify || die "kontrollsummen stemmer ikke. Slett $TARGET og prøv igjen."
+    verify "$1" "$2" || die "kontrollsummen stemmer ikke. Slett $1 og prøv igjen."
     printf '  ✓ nedlastet og verifisert\n'
+}
+
+say_step "NB-Whisper-modell ($MODEL_NAME, ${MODEL_MB} MB)"
+hent "$MODEL_DIR/$MODEL_NAME" "$MODEL_SHA" "$BASE_URL/$MODEL_NAME"
+
+if [ "$BLANDET" = 1 ]; then
+    say_step "Whisper base for blandet norsk og engelsk ($BASE_NAME, ${BASE_MB} MB)"
+    hent "$MODEL_DIR/$BASE_NAME" "$BASE_SHA" "$BASE_MODEL_URL"
 fi
 
 # --------------------------------------------------------------- røyktest
@@ -94,6 +118,27 @@ else
     else
         die "røyktesten feilet — modellen lastet, men transkriberingen ga ikke forventet tekst."
     fi
+
+    if [ "$BLANDET" = 1 ]; then
+        say_step "Røyktest — norsk, engelsk og norsk om hverandre"
+        if ! say -v '?' 2>/dev/null | grep -q '^Daniel '; then
+            printf '  ⚠ fant ikke den engelske systemstemmen Daniel — hopper over.\n'
+        else
+            say -v Nora -o "$WORK/b1.aiff" "Hei alle sammen. I dag skal vi gå gjennom budsjettet."
+            say -v Daniel -o "$WORK/b2.aiff" "Thanks for having me. Our plan is to launch the campaign in March."
+            say -v Nora -o "$WORK/b3.aiff" "Takk skal du ha. Da tar vi en kort pause."
+            ffmpeg -nostdin -loglevel error -y -i "$WORK/b1.aiff" -i "$WORK/b2.aiff" -i "$WORK/b3.aiff" \
+                -filter_complex '[0:a][1:a][2:a]concat=n=3:v=0:a=1[a]' -map '[a]' "$WORK/blandet.aiff" \
+                || die "klarte ikke å sette sammen testlyden."
+
+            if OUT=$("$SCRIPT_DIR/transcribe.sh" "$WORK/blandet.aiff" --sprak blandet 2>/dev/null) \
+                && grep -qiE 'campaign|march' "$OUT" && grep -qiE 'budsjett|pause' "$OUT"; then
+                printf '  ✓ transkriberte: %s\n' "$(tr -s ' \n' ' ' < "$OUT" | sed 's/^ *//')"
+            else
+                die "røyktesten for blandet språk feilet — engelsk eller norsk mangler i resultatet."
+            fi
+        fi
+    fi
 fi
 
 say_step "Ferdig"
@@ -103,6 +148,9 @@ cat <<'EOF'
   Du blir spurt om du vil ha møtereferat, ren transkripsjon eller
   undertekster (.srt). Sier du det med én gang, slipper du spørsmålet:
   «lag undertekster av opptaket i nedlastinger».
+
+  Snakket dere norsk og engelsk om hverandre, si det, så blir hver
+  del skrevet på sitt eget språk. Det krever /transkriber-setup --blandet.
 
   Video går rett inn. .mp4 og .mov trenger ingen lydeksport først.
   En times opptak tar typisk 10-20 minutter.
