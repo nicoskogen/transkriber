@@ -47,7 +47,8 @@ transkriberes, så et feilvalg betyr at hele jobben må kjøres om igjen.
 ${CLAUDE_PLUGIN_ROOT}/scripts/transcribe.sh "$1" --modus <modus> --sprak <no|blandet>
 ```
 
-`blandet` tar noen minutter ekstra per time opptak.
+`blandet` tar lenger tid jo mer engelsk det er. Er det meste på engelsk, regn
+med omtrent tre ganger så lang tid.
 
 **Bruk `run_in_background: true`.** En times opptak tar 10–20 minutter, som er
 lenger enn Bash-verktøyets maksimale timeout. En forgrunnskjøring blir drept
