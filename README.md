@@ -120,7 +120,7 @@ Svarer du «norsk og engelsk» på språkspørsmålet, blir hver del skrevet på
 eget språk. Med «bare norsk» blir engelsk tale oversatt til norsk, eller den
 forsvinner.
 
-Det krever en ekstra modell på 148 MB. Første gang du velger norsk og engelsk,
+Det krever en ekstra modell på 190 MB. Første gang du velger norsk og engelsk,
 spør Claude om den skal lastes ned. Du kan også hente den på forhånd med
 `/transkriber-setup --blandet`.
 

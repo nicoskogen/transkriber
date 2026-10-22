@@ -13,7 +13,7 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh $ARGUMENTS
 **Bruk `run_in_background: true`** — nedlastingen er på 1 GB (eller 2,9 GB med
 `--full`) og går ofte over Bash-verktøyets timeout.
 
-`--blandet` laster i tillegg ned Whisper base (omtrent 148 MB), som trengs for
+`--blandet` laster i tillegg ned Whisper small (omtrent 190 MB), som trengs for
 opptak der folk snakker norsk og engelsk om hverandre. Valgene kan kombineres
 og stå i hvilken som helst rekkefølge.
 

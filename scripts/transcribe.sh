@@ -59,9 +59,9 @@ for m in "$MODEL_DIR/ggml-model-q5_0.bin" "$MODEL_DIR/ggml-model.bin"; do
 done
 [ -n "$MODEL" ] || die "NB-Whisper-modellen mangler i $MODEL_DIR. Kjør /transkriber-setup først."
 
-BASE_MODEL="$MODEL_DIR/ggml-base.bin"
+SPRAK_MODELL="$MODEL_DIR/ggml-small-q5_1.bin"
 if [ "$SPRAK" = "blandet" ]; then
-    [ -f "$BASE_MODEL" ] || die "språkmodellen for blandet norsk og engelsk mangler. Kjør /transkriber-setup --blandet først."
+    [ -f "$SPRAK_MODELL" ] || die "språkmodellen for blandet norsk og engelsk mangler. Kjør /transkriber-setup --blandet først."
     command -v python3 >/dev/null 2>&1 || die "python3 mangler. Kjør xcode-select --install og prøv igjen."
 fi
 
@@ -112,7 +112,7 @@ printf 'transkriber: kjører NB-Whisper (modus: %s)…\n' "$MODUS" >&2
 
 if [ "$SPRAK" = "blandet" ]; then
     python3 "$SCRIPT_DIR/blandet.py" --lyd "$WAV" --tidslinje "$WHISPER_UT.json" --modus "$MODUS" \
-        --maks-lengde "$MAKS_LENGDE" --ut "$OUT_BASE" --whisper "$WHISPER" --modell "$MODEL" --basismodell "$BASE_MODEL" \
+        --maks-lengde "$MAKS_LENGDE" --ut "$OUT_BASE" --whisper "$WHISPER" --modell "$MODEL" --sprakmodell "$SPRAK_MODELL" \
         || die "blandet språk feilet"
 fi
 
