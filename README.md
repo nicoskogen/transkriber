@@ -127,7 +127,8 @@ Det krever en ekstra modell på 148 MB, som du henter én gang:
 
 Språket avgjøres per bit av talen, ikke per ord. Et engelsk ord midt i en norsk
 setning blir derfor gjengitt som før. Det koster også et ekstra pass over de
-engelske delene, så en time med opptak tar noen minutter lenger.
+engelske delene. Er det meste av møtet på engelsk, tar det omtrent tre ganger
+så lang tid som vanlig.
 
 ## Slik virker det
 
